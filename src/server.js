@@ -56,6 +56,7 @@ app.use('/api/templates', require('./routes/templates'));
 app.use('/api/send', require('./routes/send'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/connections', require('./routes/connections'));
+app.use('/api/ai', require('./routes/ai'));
 
 app.get('/api/providers', (req, res) => {
   res.json(listProviders());
