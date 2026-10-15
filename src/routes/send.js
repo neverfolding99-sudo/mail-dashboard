@@ -17,7 +17,7 @@ function applyPlaceholders(str, data) {
  * }
  */
 router.post('/', async (req, res) => {
-  const { templateId, subject: rawSubject, html: rawHtml, recipients, provider } = req.body;
+  const { templateId, subject: rawSubject, html: rawHtml, recipients, provider, senderName } = req.body;
 
   if (!Array.isArray(recipients) || recipients.length === 0) {
     return res.status(400).json({ error: 'recipients[] is required' });
@@ -56,6 +56,7 @@ router.post('/', async (req, res) => {
         subject: personalizedSubject,
         html: personalizedHtml,
         provider,
+        senderName,
       });
       db.prepare(
         `UPDATE messages SET status = 'sent', sent_at = datetime('now') WHERE id = ?`

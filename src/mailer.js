@@ -80,9 +80,11 @@ function listProviders() {
  * @param {string} opts.subject
  * @param {string} opts.html
  * @param {string} [opts.provider] - specific provider key to use; if omitted, tries fallbackOrder in sequence
+ * @param {string} [opts.senderName] - display name for this send (same name for the whole batch —
+ *   this is NOT per-recipient rotation, just a one-time override of MAIL_FROM_NAME)
  */
-async function sendMail({ to, subject, html, provider }) {
-  const from = `"${process.env.MAIL_FROM_NAME || 'regningoutbounn.dk'}" <${process.env.MAIL_FROM_ADDRESS}>`;
+async function sendMail({ to, subject, html, provider, senderName }) {
+  const from = `"${senderName || process.env.MAIL_FROM_NAME || 'regningoutbounn.dk'}" <${process.env.MAIL_FROM_ADDRESS}>`;
 
   const tryKeys = provider ? [provider] : fallbackOrder;
   if (tryKeys.length === 0) {

@@ -125,6 +125,10 @@
       <label>Template</label>
       <select id="send-template"><option value="">— ad-hoc (write below) —</option></select>
 
+      <label>Sender name</label>
+      <input id="send-sender-name" placeholder="e.g. regningoutbounn.dk" />
+      <div class="hint">Shown as the "From" display name for this send. The sending address itself comes from your relay config.</div>
+
       <label>Subject (overrides template if filled)</label>
       <input id="send-subject" placeholder="Leave blank to use template subject" />
 
@@ -135,8 +139,10 @@
       <select id="send-provider"><option value="">Auto (first available)</option></select>
 
       <label>Recipients</label>
+      <input type="file" id="send-csv" accept=".csv,text/csv" />
+      <div class="hint">Upload a CSV with a header row: <code>email,name,amount</code> (name/amount optional, used for {{placeholders}}). Or paste/edit below.</div>
       <textarea id="send-recipients" placeholder="One per line: email, name, amount&#10;mads@eksempel.dk, Mads, 349 kr&#10;line@eksempel.dk, Line, 199 kr"></textarea>
-      <div class="hint">Format: email, then optional values for {{name}}, {{amount}} in that order — or just paste one email per line.</div>
+      <div class="hint">Format: email, then optional values for {{name}}, {{amount}} in that order.</div>
 
       <button class="primary" id="send-btn">Send</button>
       <div id="send-result" style="margin-top:12px;font-size:13px"></div>
@@ -245,8 +251,34 @@ async function loadProviders() {
     providers.map(p => `<option value="${p.key}">${p.label}</option>`).join('');
 }
 
+// CSV upload -> fills the recipients textarea (header row: email,name,amount — order can vary)
+$('#send-csv').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const text = await file.text();
+  const rows = text.split(/\\r?\\n/).map(r => r.trim()).filter(Boolean);
+  if (rows.length === 0) return;
+
+  const header = rows[0].split(',').map(h => h.trim().toLowerCase());
+  const emailIdx = header.indexOf('email');
+  if (emailIdx === -1) return alert('CSV needs a header row with an "email" column.');
+  const nameIdx = header.indexOf('name');
+  const amountIdx = header.indexOf('amount');
+
+  const lines = rows.slice(1).map(row => {
+    const cols = row.split(',').map(c => c.trim());
+    const email = cols[emailIdx] || '';
+    const name = nameIdx > -1 ? (cols[nameIdx] || '') : '';
+    const amount = amountIdx > -1 ? (cols[amountIdx] || '') : '';
+    return [email, name, amount].filter((v, i) => i === 0 || v !== '').join(', ');
+  }).filter(Boolean);
+
+  $('#send-recipients').value = lines.join('\\n');
+});
+
 $('#send-btn').addEventListener('click', async () => {
   const templateId = $('#send-template').value || undefined;
+  const senderName = $('#send-sender-name').value || undefined;
   const subject = $('#send-subject').value || undefined;
   const html = $('#send-html').value || undefined;
   const provider = $('#send-provider').value || undefined;
@@ -265,7 +297,7 @@ $('#send-btn').addEventListener('click', async () => {
   const res = await fetch('/api/send', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ templateId, subject, html, provider, recipients }),
+    body: JSON.stringify({ templateId, senderName, subject, html, provider, recipients }),
   }).then(r => r.json());
 
   $('#send-btn').disabled = false;
