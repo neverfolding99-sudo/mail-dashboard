@@ -135,4 +135,15 @@ async function sendMail({ to, subject, html, provider, senderName }) {
   throw lastError || new Error('Send failed: no working provider.');
 }
 
-module.exports = { sendMail, listProviders, clearTransportCache };
+/**
+ * Verify a connection without sending anything (SMTP handshake + auth check only).
+ * @param {string} providerKey
+ */
+async function testConnection(providerKey) {
+  const p = allProviders().find((x) => x.key === providerKey);
+  if (!p) throw new Error(`Unknown provider "${providerKey}".`);
+  await getTransport(p).verify(); // throws with the real SMTP error (auth failed, connection refused, etc.)
+  return { ok: true };
+}
+
+module.exports = { sendMail, listProviders, clearTransportCache, testConnection };

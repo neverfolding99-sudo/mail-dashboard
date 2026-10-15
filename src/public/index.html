@@ -443,10 +443,12 @@ async function loadConnections() {
   $('#conn-list').innerHTML = conns.length ? conns.map(c => `
     <div class="tpl-item">
       <div>
-        <strong>${c.label}</strong> ${c.is_default ? '<span class="badge sent">default</span>' : ''}<br>
+        <strong>${c.label}</strong> ${c.is_default ? '<span class="badge sent">default</span>' : ''}
+        <span id="conn-test-badge-${c.id}"></span><br>
         <span style="color:var(--muted);font-size:12px">${c.host}:${c.port} — ${c.username} — from ${c.from_address}</span>
       </div>
       <div>
+        <button class="secondary" onclick="testConnectionBtn(${c.id})" id="conn-test-btn-${c.id}">Test Connection</button>
         <button class="secondary" onclick="editConnection(${c.id})">Edit</button>
         <button class="secondary" onclick="deleteConnection(${c.id})">Delete</button>
       </div>
@@ -469,6 +471,28 @@ function editConnection(id) {
   $('#conn-from-name').value = c.from_name || '';
   $('#conn-default').checked = Boolean(c.is_default);
   $('#conn-form-title').textContent = 'Edit SMTP connection';
+}
+
+async function testConnectionBtn(id) {
+  const btn = $('#conn-test-btn-' + id);
+  const badge = $('#conn-test-badge-' + id);
+  btn.disabled = true;
+  btn.textContent = 'Testing…';
+  badge.innerHTML = '';
+  try {
+    const res = await fetch('/api/connections/' + id + '/test', { method: 'POST' }).then(r => r.json());
+    if (res.ok) {
+      badge.innerHTML = '<span class="badge sent">connection OK</span>';
+    } else {
+      badge.innerHTML = '<span class="badge failed" title="' + (res.error || '').replace(/"/g,'&quot;') + '">failed</span>';
+      alert('Connection test failed:\\n\\n' + res.error);
+    }
+  } catch (e) {
+    badge.innerHTML = '<span class="badge failed">failed</span>';
+    alert('Connection test failed.');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Test Connection';
 }
 
 async function deleteConnection(id) {

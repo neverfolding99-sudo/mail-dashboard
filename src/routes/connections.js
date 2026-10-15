@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db/init');
-const { clearTransportCache } = require('../mailer');
+const { clearTransportCache, testConnection } = require('../mailer');
 
 // Never return the password in list/get responses.
 function sanitize(row) {
@@ -59,6 +59,17 @@ router.put('/:id', (req, res) => {
   );
   clearTransportCache();
   res.json(sanitize(db.prepare('SELECT * FROM smtp_connections WHERE id = ?').get(req.params.id)));
+});
+
+router.post('/:id/test', async (req, res) => {
+  const existing = db.prepare('SELECT * FROM smtp_connections WHERE id = ?').get(req.params.id);
+  if (!existing) return res.status(404).json({ error: 'Not found' });
+  try {
+    await testConnection(`saved:${existing.id}`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(502).json({ ok: false, error: String(err.message || err) });
+  }
 });
 
 router.delete('/:id', (req, res) => {
