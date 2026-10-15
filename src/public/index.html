@@ -7,115 +7,176 @@
 <style>
   :root {
     --mint: #2f9e6e;
-    --forest: #14532d;
-    --bg: #f4f9f6;
+    --mint-dark: #227a56;
+    --forest: #0f3d24;
+    --forest-light: #14532d;
+    --bg: #f3f8f5;
     --card: #ffffff;
     --text: #16241c;
-    --muted: #5c7568;
-    --border: #d9e6de;
+    --muted: #64806f;
+    --border: #e0ebe4;
     --danger: #c0392b;
+    --danger-bg: #fbe6e3;
+    --shadow: 0 1px 2px rgba(15,61,36,.04), 0 2px 8px rgba(15,61,36,.04);
   }
   * { box-sizing: border-box; }
   body {
-    margin: 0; font-family: -apple-system, system-ui, "Segoe UI", sans-serif;
-    background: var(--bg); color: var(--text);
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg); color: var(--text); display: flex; min-height: 100vh;
   }
-  header {
-    background: var(--forest); color: #fff; padding: 16px 24px;
-    display: flex; justify-content: space-between; align-items: center;
+
+  /* --- sidebar --- */
+  aside {
+    width: 220px; flex-shrink: 0; background: var(--forest); color: #e8f3ec;
+    display: flex; flex-direction: column; padding: 20px 0;
   }
-  header h1 { font-size: 18px; margin: 0; font-weight: 600; }
-  header button {
-    background: transparent; border: 1px solid rgba(255,255,255,.4); color: #fff;
-    padding: 6px 12px; border-radius: 6px; cursor: pointer;
-  }
-  nav { display: flex; gap: 4px; padding: 12px 24px 0; }
+  aside .brand { padding: 0 20px 20px; border-bottom: 1px solid rgba(255,255,255,.08); margin-bottom: 12px; }
+  aside .brand strong { display: block; font-size: 15px; color: #fff; }
+  aside .brand span { font-size: 12px; color: #9cc2ab; }
+  nav { display: flex; flex-direction: column; gap: 2px; padding: 0 10px; flex: 1; }
   nav button {
-    background: none; border: none; padding: 10px 16px; cursor: pointer;
-    font-size: 14px; color: var(--muted); border-bottom: 2px solid transparent;
+    background: none; border: none; text-align: left; padding: 10px 12px; border-radius: 7px;
+    font-size: 13.5px; color: #c7ddcd; cursor: pointer; display: flex; align-items: center; gap: 10px;
   }
-  nav button.active { color: var(--forest); border-bottom-color: var(--mint); font-weight: 600; }
-  main { padding: 24px; max-width: 980px; margin: 0 auto; }
+  nav button .dot { width: 6px; height: 6px; border-radius: 50%; background: transparent; }
+  nav button:hover { background: rgba(255,255,255,.06); color: #fff; }
+  nav button.active { background: var(--mint); color: #fff; font-weight: 600; }
+  aside .logout { padding: 0 10px; }
+  aside .logout button {
+    width: 100%; background: transparent; border: 1px solid rgba(255,255,255,.15); color: #cfe3d6;
+    padding: 8px 12px; border-radius: 7px; cursor: pointer; font-size: 12.5px;
+  }
+
+  main { flex: 1; padding: 28px 32px; max-width: 1040px; }
+  h2.page-title { font-size: 20px; margin: 0 0 4px; }
+  p.page-sub { color: var(--muted); font-size: 13.5px; margin: 0 0 22px; }
+
   .card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 20px; margin-bottom: 16px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px; margin-bottom: 18px; box-shadow: var(--shadow);
   }
-  .stats { display: flex; gap: 12px; margin-bottom: 20px; }
-  .stat { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
-  .stat .n { font-size: 28px; font-weight: 700; color: var(--forest); }
-  .stat .l { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  .card h3 { margin: 0 0 16px; font-size: 14.5px; }
+
+  .stats { display: flex; gap: 14px; margin-bottom: 20px; }
+  .stat { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); }
+  .stat .n { font-size: 30px; font-weight: 700; color: var(--forest-light); line-height: 1; }
+  .stat .l { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; margin-top: 6px; }
+  .stat.sent .n { color: var(--mint-dark); }
+  .stat.failed .n { color: var(--danger); }
+
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
-  th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
-  .badge { padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
-  .badge.sent { background: #e3f6ec; color: var(--mint); }
-  .badge.failed { background: #fbe6e3; color: var(--danger); }
+  th, td { text-align: left; padding: 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge { padding: 3px 9px; border-radius: 99px; font-size: 11px; font-weight: 600; display: inline-block; }
+  .badge.sent { background: #e3f6ec; color: var(--mint-dark); }
+  .badge.failed { background: var(--danger-bg); color: var(--danger); }
   .badge.queued { background: #eef2f0; color: var(--muted); }
+
   input, textarea, select {
-    width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px;
-    font-size: 14px; margin-bottom: 10px; font-family: inherit;
+    width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; margin-bottom: 12px; font-family: inherit; background: #fbfdfc; transition: border-color .12s;
   }
-  textarea { min-height: 160px; font-family: ui-monospace, monospace; font-size: 12.5px; }
-  .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
-  @media (max-width: 760px) { .editor-grid { grid-template-columns: 1fr; } }
-  .preview-pane { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: #fff; }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--mint); background: #fff; }
+  textarea { min-height: 150px; font-family: ui-monospace, "SF Mono", monospace; font-size: 12.5px; resize: vertical; }
+  label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 5px; }
+
+  .editor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+  @media (max-width: 860px) { .editor-grid { grid-template-columns: 1fr; } body { flex-direction: column; } aside { width: 100%; } }
+
+  .preview-pane { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #fff; }
   .preview-pane .preview-bar {
-    background: var(--bg); border-bottom: 1px solid var(--border); padding: 6px 10px;
+    background: var(--bg); border-bottom: 1px solid var(--border); padding: 7px 11px;
     font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; align-items: center;
   }
-  .preview-pane iframe { width: 100%; height: 320px; border: none; display: block; background: #fff; }
+  .preview-pane .preview-body { background: #eef3f0; padding: 12px; }
+  .preview-pane iframe { width: 100%; height: 300px; border: none; display: block; background: #fff; border-radius: 6px; transition: max-width .15s; }
   .toggle-group { display: flex; gap: 4px; }
   .toggle-group button {
-    background: none; border: 1px solid var(--border); padding: 3px 9px; border-radius: 5px;
+    background: none; border: 1px solid var(--border); padding: 3px 10px; border-radius: 6px;
     font-size: 11px; cursor: pointer; color: var(--muted);
   }
   .toggle-group button.active { background: var(--mint); color: #fff; border-color: var(--mint); }
-  label { font-size: 12px; font-weight: 600; color: var(--muted); display: block; margin-bottom: 4px; }
+
   button.primary {
-    background: var(--mint); color: #fff; border: none; padding: 10px 18px;
-    border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600;
+    background: var(--mint); color: #fff; border: none; padding: 10px 20px;
+    border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: background .12s;
   }
+  button.primary:hover { background: var(--mint-dark); }
+  button.primary:disabled { opacity: .5; cursor: default; }
   button.secondary {
-    background: #fff; color: var(--forest); border: 1px solid var(--border);
-    padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 13px;
+    background: #fff; color: var(--forest-light); border: 1px solid var(--border);
+    padding: 7px 13px; border-radius: 7px; cursor: pointer; font-size: 12.5px;
   }
-  .tpl-list { display: flex; flex-direction: column; gap: 8px; }
-  .tpl-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; }
+  button.secondary:hover { border-color: var(--mint); }
+
+  .list { display: flex; flex-direction: column; gap: 8px; }
+  .list-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 12px 14px; border: 1px solid var(--border); border-radius: 10px;
+  }
+  .list-item .meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .list-item .actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .empty { color: var(--muted); font-size: 13px; padding: 10px 2px; }
+
   .hidden { display: none; }
-  .hint { font-size: 12px; color: var(--muted); margin-top: -4px; margin-bottom: 12px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: -6px; margin-bottom: 14px; line-height: 1.4; }
+  .checkbox-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 14px; }
+  .checkbox-row input { width: auto; margin: 0; }
+  .checkbox-row label { margin: 0; font-weight: 500; color: var(--text); }
+
+  .recipient-count { font-size: 12px; color: var(--mint-dark); font-weight: 600; margin: -8px 0 12px; }
+
+  /* toast */
+  #toast-host { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 50; }
+  .toast {
+    background: var(--forest); color: #fff; padding: 11px 16px; border-radius: 9px; font-size: 13px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.18); max-width: 320px; animation: slide-in .15s ease-out;
+  }
+  .toast.error { background: var(--danger); }
+  @keyframes slide-in { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>regningoutbounn — Mail Dashboard</h1>
-  <form method="POST" action="/logout"><button>Log out</button></form>
-</header>
-
-<nav>
-  <button class="tab active" data-tab="status">Status</button>
-  <button class="tab" data-tab="templates">Templates</button>
-  <button class="tab" data-tab="send">Send</button>
-  <button class="tab" data-tab="settings">Settings</button>
-</nav>
+<aside>
+  <div class="brand">
+    <strong>regningoutbounn.dk</strong>
+    <span>Mail dashboard</span>
+  </div>
+  <nav>
+    <button class="tab active" data-tab="status"><span class="dot"></span>Status</button>
+    <button class="tab" data-tab="templates"><span class="dot"></span>Templates</button>
+    <button class="tab" data-tab="send"><span class="dot"></span>Send</button>
+    <button class="tab" data-tab="settings"><span class="dot"></span>Settings</button>
+  </nav>
+  <div class="logout">
+    <form method="POST" action="/logout"><button type="submit">Log out</button></form>
+  </div>
+</aside>
 
 <main>
 
   <section id="tab-status">
+    <h2 class="page-title">Status</h2>
+    <p class="page-sub">Delivery history across all your connections.</p>
     <div class="stats">
-      <div class="stat"><div class="n" id="stat-sent">–</div><div class="l">Sent</div></div>
-      <div class="stat"><div class="n" id="stat-failed">–</div><div class="l">Failed</div></div>
+      <div class="stat sent"><div class="n" id="stat-sent">–</div><div class="l">Sent</div></div>
+      <div class="stat failed"><div class="n" id="stat-failed">–</div><div class="l">Failed</div></div>
       <div class="stat"><div class="n" id="stat-queued">–</div><div class="l">Queued</div></div>
     </div>
     <div class="card">
       <table>
         <thead><tr><th>Time</th><th>Recipient</th><th>Subject</th><th>Status</th></tr></thead>
-        <tbody id="messages-body"><tr><td colspan="4">Loading…</td></tr></tbody>
+        <tbody id="messages-body"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
       </table>
     </div>
   </section>
 
   <section id="tab-templates" class="hidden">
+    <h2 class="page-title">Templates</h2>
+    <p class="page-sub">Reusable HTML emails with {{placeholder}} fields.</p>
     <div class="card">
       <h3 id="tpl-form-title">New template</h3>
       <input type="hidden" id="tpl-id" />
@@ -123,10 +184,11 @@
       <input id="tpl-name" placeholder="e.g. Invoice reminder" />
       <label>Subject</label>
       <input id="tpl-subject" placeholder="e.g. Din faktura fra regningoutbounn.dk" />
+
       <div class="editor-grid">
         <div>
           <label>HTML body</label>
-          <textarea id="tpl-html" placeholder="<p>Hej {{name}},</p>..." oninput="renderPreview('tpl')"></textarea>
+          <textarea id="tpl-html" placeholder="<p>Hej {{name}},</p>&#10;<p>Din regning på {{amount}} er klar.</p>"></textarea>
           <div class="hint">Use {{placeholder}} for per-recipient values, e.g. {{name}}, {{amount}}.</div>
         </div>
         <div>
@@ -139,27 +201,30 @@
                 <button data-size="375px">Mobile</button>
               </div>
             </div>
-            <iframe id="tpl-preview-frame" sandbox=""></iframe>
+            <div class="preview-body"><iframe id="tpl-preview-frame" sandbox=""></iframe></div>
           </div>
         </div>
       </div>
+
       <button class="primary" id="tpl-save">Save template</button>
-      <button class="secondary" id="tpl-clear" type="button">Clear</button>
+      <button class="secondary" id="tpl-clear" type="button" style="margin-left:8px">Clear</button>
     </div>
     <div class="card">
       <h3>Saved templates</h3>
-      <div class="tpl-list" id="tpl-list"></div>
+      <div class="list" id="tpl-list"></div>
     </div>
   </section>
 
   <section id="tab-send" class="hidden">
+    <h2 class="page-title">Send</h2>
+    <p class="page-sub">Compose from a template or write ad-hoc, then send to a list.</p>
     <div class="card">
       <label>Template</label>
       <select id="send-template"><option value="">— ad-hoc (write below) —</option></select>
 
       <label>Sender name</label>
       <input id="send-sender-name" placeholder="e.g. regningoutbounn.dk" />
-      <div class="hint">Shown as the "From" display name for this send. The sending address itself comes from your relay config.</div>
+      <div class="hint">The "From" display name for this send. The sending address itself comes from your SMTP connection.</div>
 
       <label>Subject (overrides template if filled)</label>
       <input id="send-subject" placeholder="Leave blank to use template subject" />
@@ -167,38 +232,40 @@
       <div class="editor-grid">
         <div>
           <label>HTML body (overrides template if filled)</label>
-          <textarea id="send-html" placeholder="Leave blank to use template body" oninput="renderPreview('send')"></textarea>
+          <textarea id="send-html" placeholder="Leave blank to use template body"></textarea>
         </div>
         <div>
           <label>Preview</label>
           <div class="preview-pane">
             <div class="preview-bar">
-              <span>Shows template content if this is left blank</span>
+              <span>Template content shown if left blank</span>
               <div class="toggle-group" id="send-preview-size">
                 <button data-size="100%" class="active">Desktop</button>
                 <button data-size="375px">Mobile</button>
               </div>
             </div>
-            <iframe id="send-preview-frame" sandbox=""></iframe>
+            <div class="preview-body"><iframe id="send-preview-frame" sandbox=""></iframe></div>
           </div>
         </div>
       </div>
 
-      <label>Relay provider</label>
-      <select id="send-provider"><option value="">Auto (first available)</option></select>
+      <label>Relay connection</label>
+      <select id="send-provider"><option value="">Auto (default connection)</option></select>
 
       <label>Recipients</label>
       <input type="file" id="send-csv" accept=".csv,text/csv" />
-      <div class="hint">Upload a CSV with a header row: <code>email,name,amount</code> (name/amount optional, used for {{placeholders}}). Or paste/edit below.</div>
+      <div class="hint">CSV with a header row: <code>email,name,amount</code> (name/amount optional, used for {{placeholders}}) — or edit the list directly below.</div>
       <textarea id="send-recipients" placeholder="One per line: email, name, amount&#10;mads@eksempel.dk, Mads, 349 kr&#10;line@eksempel.dk, Line, 199 kr"></textarea>
-      <div class="hint">Format: email, then optional values for {{name}}, {{amount}} in that order.</div>
+      <div class="recipient-count" id="recipient-count"></div>
 
       <button class="primary" id="send-btn">Send</button>
-      <div id="send-result" style="margin-top:12px;font-size:13px"></div>
+      <div id="send-result" style="margin-top:14px;font-size:13px"></div>
     </div>
   </section>
 
   <section id="tab-settings" class="hidden">
+    <h2 class="page-title">Settings</h2>
+    <p class="page-sub">SMTP relay connections (Amazon SES, Mailjet, Postmark, or any other SMTP relay).</p>
     <div class="card">
       <h3 id="conn-form-title">Add SMTP connection</h3>
       <input type="hidden" id="conn-id" />
@@ -225,24 +292,36 @@
       <label>From name (default, can be overridden per send)</label>
       <input id="conn-from-name" placeholder="regningoutbounn.dk" />
 
-      <label style="display:flex;align-items:center;gap:8px;margin-top:4px">
-        <input type="checkbox" id="conn-default" style="width:auto;margin:0" /> Use as default
-      </label>
+      <div class="checkbox-row">
+        <input type="checkbox" id="conn-default" />
+        <label for="conn-default">Use as default connection</label>
+      </div>
 
-      <button class="primary" id="conn-save" style="margin-top:12px">Save connection</button>
-      <button class="secondary" id="conn-clear" type="button">Clear</button>
+      <button class="primary" id="conn-save">Save connection</button>
+      <button class="secondary" id="conn-clear" type="button" style="margin-left:8px">Clear</button>
     </div>
     <div class="card">
       <h3>Saved connections</h3>
-      <div class="tpl-list" id="conn-list"></div>
+      <div class="list" id="conn-list"></div>
     </div>
   </section>
 
 </main>
 
+<div id="toast-host"></div>
+
 <script>
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
+
+function toast(message, isError) {
+  const host = $('#toast-host');
+  const el = document.createElement('div');
+  el.className = 'toast' + (isError ? ' error' : '');
+  el.textContent = message;
+  host.appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
 
 // --- tabs ---
 $$('.tab').forEach(btn => btn.addEventListener('click', () => {
@@ -252,7 +331,7 @@ $$('.tab').forEach(btn => btn.addEventListener('click', () => {
   $('#tab-' + btn.dataset.tab).classList.remove('hidden');
   if (btn.dataset.tab === 'status') loadStatus();
   if (btn.dataset.tab === 'templates') { loadTemplates(); renderPreview('tpl'); }
-  if (btn.dataset.tab === 'send') { loadTemplatesIntoSelect(); loadProviders(); }
+  if (btn.dataset.tab === 'send') { loadTemplatesIntoSelect(); loadProviders(); renderPreview('send'); updateRecipientCount(); }
   if (btn.dataset.tab === 'settings') loadConnections();
 }));
 
@@ -271,21 +350,21 @@ async function loadStatus() {
       <td>${m.subject}</td>
       <td><span class="badge ${m.status}">${m.status}</span></td>
     </tr>
-  `).join('') : '<tr><td colspan="4">No messages yet.</td></tr>';
+  `).join('') : '<tr><td colspan="4" class="empty">No messages yet.</td></tr>';
 }
 
 // --- templates ---
 async function loadTemplates() {
   const tpls = await fetch('/api/templates').then(r => r.json());
   $('#tpl-list').innerHTML = tpls.length ? tpls.map(t => `
-    <div class="tpl-item">
-      <div><strong>${t.name}</strong><br><span style="color:var(--muted);font-size:12px">${t.subject}</span></div>
-      <div>
+    <div class="list-item">
+      <div><strong>${t.name}</strong><div class="meta">${t.subject}</div></div>
+      <div class="actions">
         <button class="secondary" onclick="editTemplate(${t.id})">Edit</button>
         <button class="secondary" onclick="deleteTemplate(${t.id})">Delete</button>
       </div>
     </div>
-  `).join('') : '<div style="color:var(--muted)">No templates yet.</div>';
+  `).join('') : '<div class="empty">No templates yet.</div>';
   window._templates = tpls;
 }
 
@@ -304,6 +383,7 @@ async function deleteTemplate(id) {
   if (!confirm('Delete this template?')) return;
   await fetch('/api/templates/' + id, { method: 'DELETE' });
   loadTemplates();
+  toast('Template deleted.');
 }
 
 $('#tpl-clear').addEventListener('click', () => {
@@ -322,24 +402,30 @@ $('#tpl-save').addEventListener('click', async () => {
     subject: $('#tpl-subject').value,
     html: $('#tpl-html').value,
   };
-  if (!body.name || !body.subject || !body.html) return alert('Fill in all fields.');
+  if (!body.name || !body.subject || !body.html) return toast('Fill in all fields.', true);
   const url = id ? '/api/templates/' + id : '/api/templates';
   const method = id ? 'PUT' : 'POST';
   await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   $('#tpl-clear').click();
   loadTemplates();
+  toast('Template saved.');
 });
+
+$('#tpl-html').addEventListener('input', () => renderPreview('tpl'));
 
 // --- send ---
 async function loadTemplatesIntoSelect() {
   const tpls = await fetch('/api/templates').then(r => r.json());
   window._sendTemplates = tpls;
+  const current = $('#send-template').value;
   $('#send-template').innerHTML = '<option value="">— ad-hoc (write below) —</option>' +
     tpls.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  $('#send-template').value = current;
   renderPreview('send');
 }
 
 $('#send-template').addEventListener('change', () => renderPreview('send'));
+$('#send-html').addEventListener('input', () => renderPreview('send'));
 
 // --- live HTML preview (Templates and Send tabs) ---
 function renderPreview(prefix) {
@@ -356,7 +442,9 @@ function renderPreview(prefix) {
       html = tpl ? tpl.html : '';
     }
   }
-  frame.srcdoc = html || '<p style="font-family:sans-serif;color:#999;padding:16px">Nothing to preview yet.</p>';
+  frame.srcdoc = html && html.trim()
+    ? html
+    : '<div style="font-family:sans-serif;color:#9aa;padding:24px;text-align:center">Nothing to preview yet</div>';
 }
 
 $$('.toggle-group').forEach(group => {
@@ -373,21 +461,31 @@ $$('.toggle-group').forEach(group => {
 
 async function loadProviders() {
   const providers = await fetch('/api/providers').then(r => r.json());
-  $('#send-provider').innerHTML = '<option value="">Auto (first available)</option>' +
+  $('#send-provider').innerHTML = '<option value="">Auto (default connection)</option>' +
     providers.map(p => `<option value="${p.key}">${p.label}</option>`).join('');
 }
+
+function parseRecipientLines(text) {
+  return text.split('\n').map(l => l.trim()).filter(Boolean);
+}
+
+function updateRecipientCount() {
+  const n = parseRecipientLines($('#send-recipients').value).length;
+  $('#recipient-count').textContent = n ? n + ' recipient' + (n === 1 ? '' : 's') + ' ready' : '';
+}
+$('#send-recipients').addEventListener('input', updateRecipientCount);
 
 // CSV upload -> fills the recipients textarea (header row: email,name,amount — order can vary)
 $('#send-csv').addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
   const text = await file.text();
-  const rows = text.split(/\\r?\\n/).map(r => r.trim()).filter(Boolean);
+  const rows = text.split(/\r?\n/).map(r => r.trim()).filter(Boolean);
   if (rows.length === 0) return;
 
   const header = rows[0].split(',').map(h => h.trim().toLowerCase());
   const emailIdx = header.indexOf('email');
-  if (emailIdx === -1) return alert('CSV needs a header row with an "email" column.');
+  if (emailIdx === -1) return toast('CSV needs a header row with an "email" column.', true);
   const nameIdx = header.indexOf('name');
   const amountIdx = header.indexOf('amount');
 
@@ -399,7 +497,9 @@ $('#send-csv').addEventListener('change', async (e) => {
     return [email, name, amount].filter((v, i) => i === 0 || v !== '').join(', ');
   }).filter(Boolean);
 
-  $('#send-recipients').value = lines.join('\\n');
+  $('#send-recipients').value = lines.join('\n');
+  updateRecipientCount();
+  toast(lines.length + ' recipients imported from CSV.');
 });
 
 $('#send-btn').addEventListener('click', async () => {
@@ -409,13 +509,13 @@ $('#send-btn').addEventListener('click', async () => {
   const html = $('#send-html').value || undefined;
   const provider = $('#send-provider').value || undefined;
 
-  const lines = $('#send-recipients').value.split('\\n').map(l => l.trim()).filter(Boolean);
+  const lines = parseRecipientLines($('#send-recipients').value);
   const recipients = lines.map(line => {
     const [email, name, amount] = line.split(',').map(s => s.trim());
     return { email, data: { name, amount } };
   });
 
-  if (recipients.length === 0) return alert('Add at least one recipient.');
+  if (recipients.length === 0) return toast('Add at least one recipient.', true);
 
   $('#send-btn').disabled = true;
   $('#send-result').textContent = 'Sending…';
@@ -432,8 +532,11 @@ $('#send-btn').addEventListener('click', async () => {
     const failed = res.results.filter(r => r.status === 'failed').length;
     $('#send-result').innerHTML = `Done: ${sent} sent, ${failed} failed.` +
       (failed ? '<br>' + res.results.filter(r=>r.status==='failed').map(r=>`${r.email}: ${r.error}`).join('<br>') : '');
+    toast(sent + ' sent, ' + failed + ' failed.', failed > 0 && sent === 0);
+    loadStatus();
   } else {
     $('#send-result').textContent = res.error || 'Something went wrong.';
+    toast(res.error || 'Something went wrong.', true);
   }
 });
 
@@ -441,19 +544,19 @@ $('#send-btn').addEventListener('click', async () => {
 async function loadConnections() {
   const conns = await fetch('/api/connections').then(r => r.json());
   $('#conn-list').innerHTML = conns.length ? conns.map(c => `
-    <div class="tpl-item">
+    <div class="list-item">
       <div>
         <strong>${c.label}</strong> ${c.is_default ? '<span class="badge sent">default</span>' : ''}
-        <span id="conn-test-badge-${c.id}"></span><br>
-        <span style="color:var(--muted);font-size:12px">${c.host}:${c.port} — ${c.username} — from ${c.from_address}</span>
+        <span id="conn-test-badge-${c.id}"></span>
+        <div class="meta">${c.host}:${c.port} — ${c.username} — from ${c.from_address}</div>
       </div>
-      <div>
+      <div class="actions">
         <button class="secondary" onclick="testConnectionBtn(${c.id})" id="conn-test-btn-${c.id}">Test Connection</button>
         <button class="secondary" onclick="editConnection(${c.id})">Edit</button>
         <button class="secondary" onclick="deleteConnection(${c.id})">Delete</button>
       </div>
     </div>
-  `).join('') : '<div style="color:var(--muted)">No SMTP connections saved yet.</div>';
+  `).join('') : '<div class="empty">No SMTP connections saved yet.</div>';
   window._connections = conns;
 }
 
@@ -483,13 +586,14 @@ async function testConnectionBtn(id) {
     const res = await fetch('/api/connections/' + id + '/test', { method: 'POST' }).then(r => r.json());
     if (res.ok) {
       badge.innerHTML = '<span class="badge sent">connection OK</span>';
+      toast('Connection OK.');
     } else {
-      badge.innerHTML = '<span class="badge failed" title="' + (res.error || '').replace(/"/g,'&quot;') + '">failed</span>';
-      alert('Connection test failed:\\n\\n' + res.error);
+      badge.innerHTML = '<span class="badge failed">failed</span>';
+      toast('Connection test failed: ' + res.error, true);
     }
   } catch (e) {
     badge.innerHTML = '<span class="badge failed">failed</span>';
-    alert('Connection test failed.');
+    toast('Connection test failed.', true);
   }
   btn.disabled = false;
   btn.textContent = 'Test Connection';
@@ -499,6 +603,7 @@ async function deleteConnection(id) {
   if (!confirm('Delete this SMTP connection?')) return;
   await fetch('/api/connections/' + id, { method: 'DELETE' });
   loadConnections();
+  toast('Connection deleted.');
 }
 
 $('#conn-clear').addEventListener('click', () => {
@@ -528,17 +633,18 @@ $('#conn-save').addEventListener('click', async () => {
     isDefault: $('#conn-default').checked,
   };
   if (!body.label || !body.host || !body.username || !body.fromAddress || (!id && !body.password)) {
-    return alert('Fill in label, host, username, from address, and (for a new connection) password.');
+    return toast('Fill in label, host, username, from address, and (for a new connection) password.', true);
   }
   const url = id ? '/api/connections/' + id : '/api/connections';
   const method = id ? 'PUT' : 'POST';
   const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
   if (!res.ok) {
     const err = await res.json();
-    return alert(err.error || 'Could not save connection.');
+    return toast(err.error || 'Could not save connection.', true);
   }
   $('#conn-clear').click();
   loadConnections();
+  toast('Connection saved.');
 });
 
 loadStatus();
