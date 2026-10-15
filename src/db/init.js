@@ -30,6 +30,19 @@ CREATE TABLE IF NOT EXISTS messages (
   sent_at TEXT,
   FOREIGN KEY (template_id) REFERENCES templates(id)
 );
+
+CREATE TABLE IF NOT EXISTS smtp_connections (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  label TEXT NOT NULL,
+  host TEXT NOT NULL,
+  port INTEGER NOT NULL DEFAULT 587,
+  username TEXT NOT NULL,
+  password TEXT NOT NULL,
+  from_address TEXT NOT NULL,
+  from_name TEXT,
+  is_default INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
 `);
 
 module.exports = db;

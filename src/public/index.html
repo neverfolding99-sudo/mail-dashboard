@@ -82,6 +82,7 @@
   <button class="tab active" data-tab="status">Status</button>
   <button class="tab" data-tab="templates">Templates</button>
   <button class="tab" data-tab="send">Send</button>
+  <button class="tab" data-tab="settings">Settings</button>
 </nav>
 
 <main>
@@ -149,6 +150,46 @@
     </div>
   </section>
 
+  <section id="tab-settings" class="hidden">
+    <div class="card">
+      <h3 id="conn-form-title">Add SMTP connection</h3>
+      <input type="hidden" id="conn-id" />
+      <label>Label</label>
+      <input id="conn-label" placeholder="e.g. Postmark — main" />
+
+      <label>SMTP host</label>
+      <input id="conn-host" placeholder="e.g. smtp.postmarkapp.com" />
+
+      <label>Port</label>
+      <input id="conn-port" placeholder="587" value="587" />
+
+      <label>Username</label>
+      <input id="conn-username" placeholder="SMTP username / API key" />
+
+      <label>Password</label>
+      <input id="conn-password" type="password" placeholder="SMTP password / token" />
+      <div class="hint" id="conn-password-hint"></div>
+
+      <label>From address</label>
+      <input id="conn-from-address" placeholder="noreply@regningoutbounn.dk" />
+      <div class="hint">Must be a verified sender on this provider (SPF/DKIM set up for the domain).</div>
+
+      <label>From name (default, can be overridden per send)</label>
+      <input id="conn-from-name" placeholder="regningoutbounn.dk" />
+
+      <label style="display:flex;align-items:center;gap:8px;margin-top:4px">
+        <input type="checkbox" id="conn-default" style="width:auto;margin:0" /> Use as default
+      </label>
+
+      <button class="primary" id="conn-save" style="margin-top:12px">Save connection</button>
+      <button class="secondary" id="conn-clear" type="button">Clear</button>
+    </div>
+    <div class="card">
+      <h3>Saved connections</h3>
+      <div class="tpl-list" id="conn-list"></div>
+    </div>
+  </section>
+
 </main>
 
 <script>
@@ -164,6 +205,7 @@ $$('.tab').forEach(btn => btn.addEventListener('click', () => {
   if (btn.dataset.tab === 'status') loadStatus();
   if (btn.dataset.tab === 'templates') loadTemplates();
   if (btn.dataset.tab === 'send') { loadTemplatesIntoSelect(); loadProviders(); }
+  if (btn.dataset.tab === 'settings') loadConnections();
 }));
 
 // --- status ---
@@ -309,6 +351,86 @@ $('#send-btn').addEventListener('click', async () => {
   } else {
     $('#send-result').textContent = res.error || 'Something went wrong.';
   }
+});
+
+// --- settings / SMTP connections ---
+async function loadConnections() {
+  const conns = await fetch('/api/connections').then(r => r.json());
+  $('#conn-list').innerHTML = conns.length ? conns.map(c => `
+    <div class="tpl-item">
+      <div>
+        <strong>${c.label}</strong> ${c.is_default ? '<span class="badge sent">default</span>' : ''}<br>
+        <span style="color:var(--muted);font-size:12px">${c.host}:${c.port} — ${c.username} — from ${c.from_address}</span>
+      </div>
+      <div>
+        <button class="secondary" onclick="editConnection(${c.id})">Edit</button>
+        <button class="secondary" onclick="deleteConnection(${c.id})">Delete</button>
+      </div>
+    </div>
+  `).join('') : '<div style="color:var(--muted)">No SMTP connections saved yet.</div>';
+  window._connections = conns;
+}
+
+function editConnection(id) {
+  const c = window._connections.find(c => c.id === id);
+  if (!c) return;
+  $('#conn-id').value = c.id;
+  $('#conn-label').value = c.label;
+  $('#conn-host').value = c.host;
+  $('#conn-port').value = c.port;
+  $('#conn-username').value = c.username;
+  $('#conn-password').value = '';
+  $('#conn-password-hint').textContent = 'Leave blank to keep the existing password.';
+  $('#conn-from-address').value = c.from_address;
+  $('#conn-from-name').value = c.from_name || '';
+  $('#conn-default').checked = Boolean(c.is_default);
+  $('#conn-form-title').textContent = 'Edit SMTP connection';
+}
+
+async function deleteConnection(id) {
+  if (!confirm('Delete this SMTP connection?')) return;
+  await fetch('/api/connections/' + id, { method: 'DELETE' });
+  loadConnections();
+}
+
+$('#conn-clear').addEventListener('click', () => {
+  $('#conn-id').value = '';
+  $('#conn-label').value = '';
+  $('#conn-host').value = '';
+  $('#conn-port').value = '587';
+  $('#conn-username').value = '';
+  $('#conn-password').value = '';
+  $('#conn-password-hint').textContent = '';
+  $('#conn-from-address').value = '';
+  $('#conn-from-name').value = '';
+  $('#conn-default').checked = false;
+  $('#conn-form-title').textContent = 'Add SMTP connection';
+});
+
+$('#conn-save').addEventListener('click', async () => {
+  const id = $('#conn-id').value;
+  const body = {
+    label: $('#conn-label').value,
+    host: $('#conn-host').value,
+    port: Number($('#conn-port').value) || 587,
+    username: $('#conn-username').value,
+    password: $('#conn-password').value,
+    fromAddress: $('#conn-from-address').value,
+    fromName: $('#conn-from-name').value,
+    isDefault: $('#conn-default').checked,
+  };
+  if (!body.label || !body.host || !body.username || !body.fromAddress || (!id && !body.password)) {
+    return alert('Fill in label, host, username, from address, and (for a new connection) password.');
+  }
+  const url = id ? '/api/connections/' + id : '/api/connections';
+  const method = id ? 'PUT' : 'POST';
+  const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  if (!res.ok) {
+    const err = await res.json();
+    return alert(err.error || 'Could not save connection.');
+  }
+  $('#conn-clear').click();
+  loadConnections();
 });
 
 loadStatus();
