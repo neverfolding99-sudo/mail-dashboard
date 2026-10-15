@@ -1,0 +1,17 @@
+{
+  "name": "regningoutbounn-mail-dashboard",
+  "version": "1.0.0",
+  "description": "Email sending dashboard for regningoutbounn.dk — templates, send, and delivery status via a relay provider (Brevo).",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "better-sqlite3": "^11.3.0",
+    "nodemailer": "^6.9.14",
+    "dotenv": "^16.4.5",
+    "express-session": "^1.18.0"
+  }
+}
